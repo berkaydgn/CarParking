@@ -58,6 +58,12 @@ public class Car : MonoBehaviour
         {
             Destroy(gameObject);     //I will create the object pool later
         }
+        
+        else if (collision.gameObject.CompareTag("Diamond"))
+        {
+            collision.gameObject.SetActive(false);
+            _GameManager.DiamondCount++;     //I will create the object pool later
+        }
 
     }
 }
