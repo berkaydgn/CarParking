@@ -11,11 +11,8 @@ public class Car : MonoBehaviour
     public GameObject[] Trails;
     public Transform Parent;
     public GameManager _GameManager;
-    
-    void Start()
-    {
-        
-    }
+    public GameObject ExplosionPoint; 
+  
 
     void Update()
     {
@@ -32,38 +29,59 @@ public class Car : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("StartingPoint"))
+        if (collision.gameObject.CompareTag("Parking"))
         {
-            startingPointCase = true;
-            _GameManager.StartingPoint.SetActive(false);
-        }
-
-        else if (collision.gameObject.CompareTag("Parking"))
-        {
-            Move = false;
-            Trails[0].SetActive(false);
-            Trails[1].SetActive(false);
+            VehicleTechnical();
             transform.SetParent(Parent);
             _GameManager.NewVehicle();
 
             GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
         }
 
-        else if (collision.gameObject.CompareTag("MiddleCenter"))
-        {
-            Destroy(gameObject);     //I will create the object pool later
-        }
-
         else if (collision.gameObject.CompareTag("Vehicle"))
         {
-            Destroy(gameObject);     //I will create the object pool later
+            VehicleTechnical();
+            _GameManager.ExplosionEffect.transform.position = ExplosionPoint.transform.position;
+            _GameManager.ExplosionEffect.Play();
+            _GameManager.Lose();
         }
-        
-        else if (collision.gameObject.CompareTag("Diamond"))
+    }
+    
+    void VehicleTechnical()
+    {
+        Move = false;
+        Trails[0].SetActive(false);
+        Trails[1].SetActive(false);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+
+        if (other.gameObject.CompareTag("StartingPoint"))
         {
-            collision.gameObject.SetActive(false);
-            _GameManager.DiamondCount++;     //I will create the object pool later
+            startingPointCase = true;
+        }
+
+        else if (other.gameObject.CompareTag("Diamond"))
+        {
+            other.gameObject.SetActive(false);
+            _GameManager.Audios[0].Play();
+            _GameManager.DiamondCount++;
+        }
+
+        else if (other.gameObject.CompareTag("MiddleCenter"))
+        {
+            VehicleTechnical();
+            _GameManager.ExplosionEffect.transform.position = ExplosionPoint.transform.position;
+            _GameManager.ExplosionEffect.Play();
+            _GameManager.Lose();
+        }
+
+        else if (other.gameObject.CompareTag("FirstPark"))
+        {
+            other.gameObject.GetComponent<FirstPark>().ParkingActive();
         }
 
     }
+
 }
