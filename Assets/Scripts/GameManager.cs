@@ -32,38 +32,52 @@ public class GameManager : MonoBehaviour
     public int DiamondCount;
     public ParticleSystem ExplosionEffect;
     bool rotating = true;
+    bool tapLock;
     public AudioSource[] Audios;
 
 
     void Start()
-    {
+    {   
+         tapLock = true;
          NumberOfVehicles2 = NumberOfVehicles;
 
         for (int i = 0; i < NumberOfVehicles; i++)
         {
             VehicleSprites[i].SetActive(true);
-        }
+        } 
 
         CheckDefaultValue();
     }
     
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G))
+        if (Input.touchCount == 1)
         {
-            Vehicles[ActiveVehicleIndex].GetComponent<Car>().Move = true;
-            ActiveVehicleIndex++;
-        }
+            Touch touch = Input.GetTouch(0);
 
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            Panels[0].SetActive(false);
-            Panels[3].SetActive(true);
+            if (touch.phase == TouchPhase.Began)
+            {
+
+                if (tapLock)
+                {
+                    Panels[0].SetActive(false);
+                    Panels[3].SetActive(true);
+                    tapLock = false;
+                }
+
+                else
+                {
+                    Vehicles[ActiveVehicleIndex].GetComponent<Car>().Move = true;
+                    ActiveVehicleIndex++;
+                }
+            }
         }
 
         if (rotating)
+        {
             Platform_1.transform.Rotate(new Vector3(0, 0, RotationSpeed[0]), Space.Self);
-
+            Platform_2.transform.Rotate(new Vector3(0, 0, -RotationSpeed[1]), Space.Self);
+        }
     }
 
     public void NewVehicle()
@@ -137,11 +151,7 @@ public class GameManager : MonoBehaviour
 
     void CheckDefaultValue()
     {
-        if (!PlayerPrefs.HasKey("Diamond"))
-        {
-            PlayerPrefs.SetInt("Diamond", 0);
-            PlayerPrefs.SetInt("Level", 1);
-        }
+        
 
         Texts[0].text = PlayerPrefs.GetInt("Diamond").ToString();
         Texts[1].text = SceneManager.GetActiveScene().name;   
